@@ -2,10 +2,11 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
 from keras.layers.embeddings import Embedding
 from keras.layers.recurrent import LSTM
-from util import Loader
-import jieba
 
-class LSTM:
+import jieba
+from utils import Loader
+
+class LSTM(object):
     def __init__(self, load = None):
         self.vocab, self.max_len = Loader.build_vocab()
         print ("data loaded!")
@@ -18,11 +19,11 @@ class LSTM:
         self.W, self.word_idx_map = Loader.get_W(self.w2v)
 
         self.model = Sequential()
-        self.model.add(Embedding(len(self.vocab), 300, input_length=self.max_len, weights=self.W))
+        self.model.add(Embedding(len(self.word_idx_map), 300, input_length=self.max_len, weights=self.W))
         self.model.add(LSTM(output_dim=100, activation='sigmoid', inner_activation='hard_sigmoid'))
         self.model.add(Dropout(0.5))
-        self.model.add(Dense(1))
-        self.model.add(Activation('sigmoid'))
+        self.model.add(Dense(7))
+        self.model.add(Activation('softmax'))
     
         self.model_path = "../../data/lstm_model.json"
         self.params_path = "../../data/lstm_params.h5"

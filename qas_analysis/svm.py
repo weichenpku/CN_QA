@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import SVC
 from sklearn import metrics
-from util import Loader
+from utils import *
 import numpy as np
 
 '''
@@ -35,7 +35,7 @@ class SVM(object):
         # Loader.add_unknown_words(self.w2v, self.vocab)
         # self.W, self.word_idx_map = Loader.get_W(self.w2v)
         
-        self.cl = Pipeline([('vec', TfidfVectorizer(ngram_range = (1,1))),\
+        self.cl = Pipeline([('vec', TfidfVectorizer(ngram_range = (1,2))),\
                      ('svm', SVC(kernel='linear'))])
 
         self.c2id, self.id2c = Loader.build_class()

@@ -5,10 +5,8 @@ import os, re
 import jieba
 import jieba.posseg as pseg
 import numpy as np
-import pandas as pd
 import pickle
 
-from util import Loader
 
 raw_qas_path = "../../data/question.txt"
 
@@ -22,6 +20,7 @@ def read_raw_data():
     tags = {}
     pattern = re.compile(r"^[0-9]")
     count = 0
+    q_other = 0
     for line in lines:
         qas, ans = "", ""
         line = line.strip()
@@ -44,16 +43,23 @@ def read_raw_data():
         if qas == "" or ans == "":
             continue
         
-        qas = pseg.lcut(qas)
+        # qas = pseg.lcut(qas)
+        qas = jieba.cut(qas)
         ans = pseg.lcut(ans)
-        if len(ans) > 1: continue
+        if len(ans) > 1: 
+            continue
         q, a = '', ''
-        for w, t in qas:
-            q += '|' + w + ' ' + t
+        # for w, t in qas:
+        #     q += '|' + w + ' ' + t
+        for w in qas:
+            q += '|' + w + ' ' + 'bubble'
         for w, t in ans:
-            if t not in qa_class: break
-            # if t == 'n':
-            #     print (w)
+            if t not in qa_class:
+                if q_other > -1:
+                    break
+                t = 'other'
+                q_other += 1
+            
             a += '|' + w + ' ' + t
         if a == "": continue
         count += 1
@@ -61,6 +67,8 @@ def read_raw_data():
         qas_class.setdefault(a[1:].split()[1], [])
         qas_class[a[1:].split()[1]].append(q[1:])
 
+    for k, v in qas_class.items():
+        print (k + '...' + str(len(v)))
     json.dump(qass, open('../../data/qas_yzdd.json','w', encoding="UTF-8"), ensure_ascii=False)
     json.dump(qas_class, open('../../data/qas_class.json','w', encoding="UTF-8"), ensure_ascii=False)
     print (count)
